@@ -2,7 +2,7 @@
 TARGET = build/myapp
 
 # Исходные файлы вашего проекта
-SRCS = main.cpp Core/Game.cpp Core/GameWindow.cpp Platform/X11Window.cpp Platform/Win32Window.cpp Resources/GameManager.cpp OpenGL/OpenGLContex.cpp
+SRCS = main.cpp Core/Game.cpp Core/GameWindow.cpp Platform/X11Window.cpp Platform/Win32Window.cpp Resources/GameManager.cpp OpenGL/OpenGLContex.cpp Utils/TextureLoader.cpp Graphics/Texture2D.cpp
 
 # Исходные файлы ImGui
 IMGUI_SRCS = imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_tables.cpp imgui/imgui_widgets.cpp imgui/backends/imgui_impl_opengl3.cpp
