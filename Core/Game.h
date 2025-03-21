@@ -18,6 +18,7 @@ private:
 
     void Initialize();
 
+    void Run();
     void HandleEvents();
     void Draw();
     void Update(float deltaTime);

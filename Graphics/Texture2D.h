@@ -12,9 +12,6 @@ public:
 	// Загрузка текстуры из файла
 	bool loadFromFile(const std::string &filePath);
 
-	// Привязка текстуры к OpenGL
-	void bind() const;
-
 	// Получение ID текстуры
 	unsigned int getID() const;
 
