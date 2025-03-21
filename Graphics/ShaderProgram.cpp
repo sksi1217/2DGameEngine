@@ -110,3 +110,15 @@ GLuint ShaderProgram::getProgramID() const
 {
 	return programID;
 }
+
+// Новый метод для установки uniform-переменной типа mat4
+void ShaderProgram::setMat4(const std::string &name, const glm::mat4 &matrix) const
+{
+	GLint location = glGetUniformLocation(programID, name.c_str());
+	if (location == -1)
+	{
+		std::cerr << "Uniform variable not found: " << name << std::endl;
+		return;
+	}
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+}

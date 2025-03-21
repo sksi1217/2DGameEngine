@@ -12,6 +12,7 @@ public:
 	// Загрузка текстуры из файла
 	bool loadFromFile(const std::string &filePath);
 
+	void bind() const;
 	// Получение ID текстуры
 	unsigned int getID() const;
 

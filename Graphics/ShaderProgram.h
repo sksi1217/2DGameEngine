@@ -3,6 +3,8 @@
 
 #include <string>
 #include <GL/glew.h>
+#include <glm/glm.hpp> // Для работы с матрицами
+#include <glm/gtc/type_ptr.hpp>
 
 class ShaderProgram
 {
@@ -18,6 +20,9 @@ public:
 
 	// Получение ID программы
 	GLuint getProgramID() const;
+
+	// Установка uniform-переменной типа mat4
+	void setMat4(const std::string &name, const glm::mat4 &matrix) const;
 
 private:
 	GLuint programID; // ID шейдерной программы в OpenGL

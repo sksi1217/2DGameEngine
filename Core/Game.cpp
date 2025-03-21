@@ -1,13 +1,14 @@
 #include "Game.h"
 #include "Resources/GameManager.h"
-#include "Graphics/Texture2D.h"
-#include "Graphics/ShaderProgram.h"
 
 #include <iostream>
 #include <chrono>
 #include <OpenGL/OpenGLContex.h>
 #include <Utils/TextureLoader.h>
 #include <Utils/ShaderLoader.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 OpenGLContext glContext;
 
@@ -16,9 +17,14 @@ std::shared_ptr<Texture2D> texture1;
 
 // Загрузка шейдеров
 std::shared_ptr<ShaderProgram> shader1;
-std::shared_ptr<ShaderProgram> shader2;
 
 Game::Game(int width, int height) : gameWindow(width, height) {}
+
+Game::~Game()
+{
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+}
 
 void Game::Initialize()
 {
@@ -39,19 +45,39 @@ void Game::Initialize()
         return;
     }
 
-    texture1 = TextureLoader::loadTexture("Resources/Textures/qweqwe.jpg");
-    if (!texture1)
+    // Загружаем текстуры
+    std::shared_ptr<Texture2D> texture1 = TextureLoader::loadTexture("Resources/Textures/qweqwe.jpg");
+    std::shared_ptr<Texture2D> texture2 = TextureLoader::loadTexture("Resources/Textures/qweqwe.png");
+
+    if (!texture1 || !texture2)
     {
-        std::cerr << "Failed to load texture!" << std::endl;
+        std::cerr << "Failed to load textures!" << std::endl;
         return;
     }
 
     shader1 = ShaderLoader::loadShader("Shaders/vertex.glsl", "Shaders/fragment.glsl");
-    shader2 = ShaderLoader::loadShader("Shaders/vertex.glsl", "Shaders/fragment.glsl");
-    if (!shader1 && !shader2)
+    if (!shader1)
     {
         std::cout << "Failed to load Shaders!" << std::endl;
     }
+
+    // Создаем объекты
+    float vertices1[] = {
+        // Позиции          // Текстурные координаты
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 0.0f, 1.0f};
+
+    float vertices2[] = {
+        // Другой объект
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
+        -0.5f, 0.5f, 0.0f, 0.0f, 1.0f};
+
+    gameObj.push_back(std::make_shared<GameObject>(vertices1, 4, sizeof(vertices1), texture1, shader1));
+    gameObj.push_back(std::make_shared<GameObject>(vertices2, 4, sizeof(vertices2), texture2, shader1));
 }
 
 void Game::HandleEvents()
@@ -90,68 +116,67 @@ void Game::Run()
 
 void Game::Draw()
 {
-    if (!shader1)
-    {
-        exit(true);
-        std::cerr << "Shader is not loaded!" << std::endl;
-        return;
-    }
-
-    // Очистка экрана
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Привязываем шейдерную программу
-    shader1->use();
-
-    // Привязываем текстуру
-    // texture1->bind();
-
-    // Настройка VAO и VBO
-    GLuint VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-
-    // Вершины квадрата (позиции + текстурные координаты)
-    float vertices[] = {
-        // Позиции          // Текстурные координаты
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // Левый нижний угол
-        0.5f, -0.5f, 0.0f, -1.0f, 0.0f, // Правый нижний угол
-        0.5f, 0.5f, 0.0f, -1.0f, -1.0f, // Правый верхний угол
-        -0.5f, 0.5f, 0.0f, 0.0f, -1.0f  // Левый верхний угол
-    };
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // Атрибуты вершин
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // Рисуем квадрат
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Заменяем GL_QUADS на GL_TRIANGLE_FAN
-
-
-    // Очищаем VAO и VBO
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-
-    // Проверка ошибок OpenGL
-    GLenum err;
-    while ((err = glGetError()) != GL_NO_ERROR)
+    for (const auto &obj : gameObj)
     {
-        std::cerr << "OpenGL error: " << err << std::endl;
+        obj->Draw();
     }
 
-    // Показать результат на экране
     glContext.swapBuffers();
 }
 
 void Game::Update(float deltaTime)
 {
+}
+
+void Game::DrawTexture(
+    std::shared_ptr<Texture2D> texture,
+    float x, float y, float width, float height,
+    float angle, bool flipHorizontal, bool flipVertical)
+{
+    if (!shader1 || !texture)
+    {
+        std::cerr << "Shader or texture is not loaded!" << std::endl;
+        return;
+    }
+
+    // Активируем шейдерную программу
+    shader1->use();
+
+    // Создаем матрицу преобразования
+    glm::mat4 model = glm::mat4(1.0f);
+
+    // Перемещение
+    model = glm::translate(model, glm::vec3(x, y, 0.0f));
+
+    // Масштабирование
+    model = glm::scale(model, glm::vec3(width, height, 1.0f));
+
+    // Поворот вокруг центра объекта
+    model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f));
+    model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::translate(model, glm::vec3(-0.5f, -0.5f, 0.0f));
+
+    // Отражение
+    if (flipHorizontal)
+    {
+        model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 0.0f));
+    }
+    if (flipVertical)
+    {
+        model = glm::scale(model, glm::vec3(1.0f, -1.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+    }
+
+    // Передаем матрицу в шейдер
+    shader1->setMat4("transform", model);
+
+    // Привязываем VAO
+    glBindVertexArray(VAO);
+
+    // Рисуем квадрат
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }

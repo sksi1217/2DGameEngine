@@ -5,6 +5,7 @@ TARGET = build/myapp
 SRCS = main.cpp \
 	Core/Game.cpp \
 	Core/GameWindow.cpp \
+	Core/GameObject.cpp \
 	Platform/X11Window.cpp \
 	Platform/Win32Window.cpp \
 	Resources/GameManager.cpp \
@@ -12,7 +13,7 @@ SRCS = main.cpp \
 	Utils/TextureLoader.cpp \
 	Graphics/Texture2D.cpp \
 	Graphics/ShaderProgram.cpp \
-	Utils/ShaderLoader.cpp
+	Utils/ShaderLoader.cpp \
 
 # Объектные файлы
 OBJS = $(SRCS:.cpp=.o)

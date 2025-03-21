@@ -59,6 +59,11 @@ bool Texture2D::loadFromFile(const std::string &filePath)
 	return true;
 }
 
+void Texture2D::bind() const // ! делает текстуру активной
+{
+	glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
 unsigned int Texture2D::getID() const
 {
 	return textureID;
