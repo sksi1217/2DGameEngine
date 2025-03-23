@@ -9,7 +9,8 @@ SRCS = main.cpp \
 	src/core/GameManager.cpp \
 	src/openGL/OpenGLContex.cpp \
 	src/graphics/Texture2D.cpp \
-	src/graphics/ShaderProgram.cpp \
+	src/graphics/Shader.cpp \
+	src/graphics/Render.cpp \
 	src/utils/ShaderLoader.cpp \
 	src/utils/TextureLoader.cpp
 

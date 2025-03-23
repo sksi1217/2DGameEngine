@@ -1,11 +1,11 @@
-#include "ShaderProgram.h"
+#include "Shader.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
-ShaderProgram::ShaderProgram() : programID(0) {}
+Shader::Shader() : programID(0) {}
 
-ShaderProgram::~ShaderProgram()
+Shader::~Shader()
 {
 	if (programID != 0)
 	{
@@ -13,7 +13,7 @@ ShaderProgram::~ShaderProgram()
 	}
 }
 
-bool ShaderProgram::loadFromFile(const std::string &vertexPath, const std::string &fragmentPath)
+bool Shader::loadFromFile(const std::string &vertexPath, const std::string &fragmentPath)
 {
 	// Загрузка исходного кода шейдеров
 	std::string vertexSource = loadShaderSource(vertexPath);
@@ -58,7 +58,7 @@ bool ShaderProgram::loadFromFile(const std::string &vertexPath, const std::strin
 	return true;
 }
 
-GLuint ShaderProgram::compileShader(GLenum type, const std::string &source)
+GLuint Shader::compileShader(GLenum type, const std::string &source)
 {
 	GLuint shader = glCreateShader(type);
 	if (shader == 0)
@@ -86,7 +86,7 @@ GLuint ShaderProgram::compileShader(GLenum type, const std::string &source)
 	return shader;
 }
 
-std::string ShaderProgram::loadShaderSource(const std::string &filePath)
+std::string Shader::loadShaderSource(const std::string &filePath)
 {
 	std::ifstream file(filePath);
 	if (!file.is_open())
@@ -101,18 +101,18 @@ std::string ShaderProgram::loadShaderSource(const std::string &filePath)
 	return buffer.str();
 }
 
-void ShaderProgram::use() const
+void Shader::use() const
 {
 	glUseProgram(programID);
 }
 
-GLuint ShaderProgram::getProgramID() const
+GLuint Shader::getProgramID() const
 {
 	return programID;
 }
 
 // Новый метод для установки uniform-переменной типа mat4
-void ShaderProgram::setMat4(const std::string &name, const glm::mat4 &matrix) const
+void Shader::setMat4(const std::string &name, const glm::mat4 &matrix) const
 {
 	GLint location = glGetUniformLocation(programID, name.c_str());
 	if (location == -1)

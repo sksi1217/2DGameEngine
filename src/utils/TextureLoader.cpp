@@ -1,33 +1,38 @@
+// TextureLoader.cpp
 #include "TextureLoader.h"
 #include <src/graphics/Texture2D.h>
-#include <memory>
 #include <iostream>
 
 // Инициализация статического кэша
-std::unordered_map<std::string, std::weak_ptr<Texture2D>> TextureLoader::textureCache;
+std::unordered_map<std::string, Texture2D *> TextureLoader::textureCache;
 
-std::shared_ptr<Texture2D> TextureLoader::loadTexture(const std::string &filePath)
+Texture2D *TextureLoader::loadTexture(const std::string &filePath)
 {
-	// Проверяем, есть ли текстура в кэше
 	auto it = textureCache.find(filePath);
 	if (it != textureCache.end())
 	{
-		auto cachedTexture = it->second.lock(); // Пытаемся получить shared_ptr
-		if (cachedTexture)
-		{
-			return cachedTexture; // Возвращаем кэшированную текстуру
-		}
+		return it->second; // Возвращаем кэшированную текстуру
 	}
 
 	// Создаем новую текстуру
-	auto texture = std::make_shared<Texture2D>();
+	Texture2D *texture = new Texture2D();
 	if (!texture->loadFromFile(filePath))
 	{
 		std::cerr << "Failed to load texture: " << filePath << std::endl;
+		delete texture;
 		return nullptr;
 	}
 
 	// Добавляем текстуру в кэш
 	textureCache[filePath] = texture;
 	return texture;
+}
+
+void TextureLoader::clearCache()
+{
+	for (auto &pair : textureCache)
+	{
+		delete pair.second; // Освобождаем память
+	}
+	textureCache.clear();
 }

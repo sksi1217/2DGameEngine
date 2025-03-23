@@ -2,40 +2,30 @@
 #define RENDERABLE_H
 
 #include <memory>
-#include <src/graphics/ShaderProgram.h>
-#include <src/graphics/Texture2D.h>
+#include <src/graphics/Render.h>
 
 class GameObject
 {
 public:
-	GameObject(const float *vertices, size_t vertexCount, size_t vertexSize, std::shared_ptr<Texture2D> texture, std::shared_ptr<ShaderProgram> shader);
+	GameObject(Texture2D *texture, Shader *shader);
 	~GameObject();
 
 	void Draw();
 
-	// Методы для управления трансформациями
-	void SetPosition(const glm::vec2 &pos) { Position = pos; }
-	void SetOrigin(const glm::vec2 &origin) { Origin = origin; }
-	void SetRotation(float angle) { Rotation = angle; }
-	void SetScale(const glm::vec2 &scale) { Scale = scale; }
-	void SetFlipHorizontal(bool flip) { FlipHorizontal = flip; }
-	void SetFlipVertical(bool flip) { FlipVertical = flip; }
+	Rect dstrect = {0.0f, 0.0f, 100.0f, 100.0f}; // Целевой прямоугольник на экране
 
-	float Rotation = 0.0f; // Угол вращения (градусы)
+	float speed = 50.0f; // Скорость движения (пикселей/секунду)
 
 private:
-	GLuint VAO;
-	GLuint VBO;
-	size_t vertexCount;
-	std::shared_ptr<Texture2D> texture;
-	std::shared_ptr<ShaderProgram> shader;
+	Render renderer;
 
-	glm::vec2 Position = {0.0f, 0.0f}; // Позиция объекта
-	glm::vec2 Origin = {0.0f, 0.0f};   // Точка поворота (0-1)
+	Rect srcrect = {0.0f, 0.0f, 1.0f, 1.0f};
+	Rect origin = {0.0f, 0.0f, 0.0f, 0.0f}; // Точка вращения
 
-	glm::vec2 Scale = {1.0f, 1.0f}; // Масштаб по осям
-	bool FlipHorizontal = false;	// Отражение по горизонтали
-	bool FlipVertical = false;		// Отражение по вертикали
+	float angle = 0;
+
+	Texture2D *texture;
+	Shader *shader;
 };
 
 #endif // RENDERABLE_H

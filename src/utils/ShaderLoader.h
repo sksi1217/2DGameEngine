@@ -6,13 +6,13 @@
 #include <memory>
 #include <iostream>
 
-class ShaderProgram; // Предварительное объявление
+class Shader; // Предварительное объявление
 
 class ShaderLoader
 {
 public:
 	// Загрузка шейдера (с кэшированием)
-	static std::shared_ptr<ShaderProgram> loadShader(const std::string &vertexPath, const std::string &fragmentPath);
+	static Shader *loadShader(const std::string &vertexPath, const std::string &fragmentPath);
 
 private:
 	// Ключ для кэша: комбинация путей к вершинному и фрагментному шейдерам
@@ -40,10 +40,10 @@ private:
 	/*
 	 ? Кэш загруженных шейдеров
 	 ! ShaderKey:  Тип ключа.
-	 ! std::weak_ptr<ShaderProgram>:  Тип значения.
+	 ! std::weak_ptr<Shader>:  Тип значения.
 	 ! ShaderKeyHash:  Хеш-функция.
 	*/
-	static std::unordered_map<ShaderKey, std::weak_ptr<ShaderProgram>, ShaderKeyHash> shaderCache;
+	static std::unordered_map<ShaderKey, Shader *, ShaderKeyHash> shaderCache;
 
 	// Приватный конструктор (класс статический)
 	ShaderLoader() = delete;

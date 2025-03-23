@@ -1,16 +1,16 @@
-#ifndef SHADERPROGRAM_H
-#define SHADERPROGRAM_H
+#ifndef SHADERP_H
+#define SHADERP_H
 
 #include <string>
 #include <GL/glew.h>
 #include <glm/glm.hpp> // Для работы с матрицами
 #include <glm/gtc/type_ptr.hpp>
 
-class ShaderProgram
+class Shader
 {
 public:
-	ShaderProgram();
-	~ShaderProgram();
+	Shader();
+	~Shader();
 
 	// Загрузка шейдеров из файлов
 	bool loadFromFile(const std::string &vertexPath, const std::string &fragmentPath);

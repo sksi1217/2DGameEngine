@@ -16,7 +16,12 @@ public:
 	// Получение ID текстуры
 	unsigned int getID() const;
 
+	int getWidth() const { return width; }
+	int getHeight() const { return height; }
+
 private:
+	int width = 0;			// Ширина текстуры
+	int height = 0;			// Высота текстуры
 	unsigned int textureID; // ID текстуры в OpenGL
 };
 

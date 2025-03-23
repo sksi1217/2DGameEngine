@@ -31,7 +31,7 @@ X11Window::X11Window(int width, int height)
         &attrs);
 
     XMapWindow(GameManager::display, GameManager::window);
-    XStoreName(GameManager::display, GameManager::window, "Hello, Linux!");
+    XStoreName(GameManager::display, GameManager::window, "A");
 }
 
 X11Window::~X11Window()

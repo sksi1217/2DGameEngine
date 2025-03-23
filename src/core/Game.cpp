@@ -9,14 +9,9 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Rect.h"
 
 OpenGLContext glContext;
-
-// Загружаем и привязываем текстуру
-std::shared_ptr<Texture2D> texture1;
-
-// Загрузка шейдеров
-std::shared_ptr<ShaderProgram> shader1;
 
 Game::Game(int width, int height) : gameWindow(width, height) {}
 
@@ -45,49 +40,27 @@ void Game::Initialize()
 		return;
 	}
 
-	// Загружаем текстуры
-	std::shared_ptr<Texture2D> texture1 = TextureLoader::loadTexture("assets/textures/qweqwe.jpg");
-	std::shared_ptr<Texture2D> texture2 = TextureLoader::loadTexture("assets/textures/qweqwe.png");
-
-	if (!texture1 || !texture2)
-	{
-		std::cerr << "Failed to load textures!" << std::endl;
-		return;
-	}
-
-	shader1 = ShaderLoader::loadShader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+	Shader *shader1 = ShaderLoader::loadShader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
 	if (!shader1)
 	{
 		std::cout << "Failed to load Shaders!" << std::endl;
 	}
 
-	// Создаем объекты
-	float vertices1[] = {
-		// Другой объект
-		-100, -70, 0.0f, 0.0f, 0.0f,
-		100, -70, 0.0f, 1.0f, 0.0f,
-		100, 70, 0.0f, 1.0f, 1.0f,
-		-100, 70, 0.0f, 0.0f, 1.0f};
+	// Загружаем текстуры
+	Texture2D *texture1 = TextureLoader::loadTexture("assets/textures/texture.png");
 
-	float vertices2[] = {
-		// Другой объект
-		-100, -70, 0.0f, 0.0f, 0.0f,
-		100, -70, 0.0f, 1.0f, 0.0f,
-		100, 70, 0.0f, 1.0f, 1.0f,
-		-100, 70, 0.0f, 0.0f, 1.0f};
+	if (!texture1)
+	{
+		std::cerr << "Failed to load textures!" << std::endl;
+		return;
+	}
 
-	auto obj1 = std::make_shared<GameObject>(vertices1, 4, sizeof(vertices1), texture1, shader1);
-	obj1->SetPosition({200, 300}); // Позиция объекта на экране
+	// auto obj1 = std::make_shared<GameObject>(texture1, shader1);
 
-	auto obj = std::make_shared<GameObject>(vertices2, 4, sizeof(vertices2), texture2, shader1);
-	obj->SetPosition({100, 100}); // Позиция объекта на экране
-	obj->SetOrigin({0.0f, 0.0f}); // Центр вращения (центр объекта)
-	obj->SetRotation(0.0f);		  // Поворот на 45 градусов
-	// obj->SetScale({1.0f, 1.0f});	// Масштаб
-	obj->SetFlipVertical(false); // Горизонтальное отражение
+	auto obj1 = std::make_shared<GameObject>(texture1, shader1);
 
+	// gameObj.push_back(obj1);
 	gameObj.push_back(obj1);
-	gameObj.push_back(obj);
 }
 
 void Game::HandleEvents()
@@ -117,14 +90,14 @@ void Game::Run()
 		lastTime = currentTime;
 
 		Update(deltaTime);
-		Draw();
+		Draw(deltaTime);
 		HandleEvents();
 	}
 	XDestroyWindow(GameManager::display, GameManager::window);
 	XCloseDisplay(GameManager::display);
 }
 
-void Game::Draw()
+void Game::Draw(float deltaTime)
 {
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -133,10 +106,20 @@ void Game::Draw()
 	{
 		obj->Draw();
 
-		obj->Rotation++;
-		if (obj->Rotation >= 360)
+		// Обновление позиции
+		obj->dstrect.x += obj->speed * deltaTime;
+
+		// Проверка границ (например, экран 800x600)
+		float rightBorder = 400.0f - obj->dstrect.w; // Правая граница с учетом ширины объекта
+		if (obj->dstrect.x >= rightBorder)
 		{
-			obj->Rotation = 0;
+			obj->dstrect.x = rightBorder; // Корректировка позиции
+			obj->speed *= -1;			  // Инверсия направления
+		}
+		if (obj->dstrect.x <= 0.0f)
+		{
+			obj->dstrect.x = 0.0f;
+			obj->speed *= -1;
 		}
 	}
 

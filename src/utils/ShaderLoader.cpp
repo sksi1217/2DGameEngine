@@ -1,11 +1,11 @@
 #include "ShaderLoader.h"
-#include <src/graphics/ShaderProgram.h>
+#include <src/graphics/Shader.h>
 #include <iostream>
 
 // Инициализация статического кэша
-std::unordered_map<ShaderLoader::ShaderKey, std::weak_ptr<ShaderProgram>, ShaderLoader::ShaderKeyHash> ShaderLoader::shaderCache;
+std::unordered_map<ShaderLoader::ShaderKey, Shader *, ShaderLoader::ShaderKeyHash> ShaderLoader::shaderCache;
 
-std::shared_ptr<ShaderProgram> ShaderLoader::loadShader(const std::string &vertexPath, const std::string &fragmentPath)
+Shader *ShaderLoader::loadShader(const std::string &vertexPath, const std::string &fragmentPath)
 {
 	//  Создаем ключ для поиска в кэше
 	ShaderKey key{vertexPath, fragmentPath};
@@ -14,15 +14,12 @@ std::shared_ptr<ShaderProgram> ShaderLoader::loadShader(const std::string &verte
 	auto it = shaderCache.find(key);
 	if (it != shaderCache.end())
 	{
-		auto cachedShader = it->second.lock(); // Пытаемся получить shared_ptr
-		if (cachedShader)
-		{
-			return cachedShader; // Возвращаем кэшированный шейдер
-		}
+		return it->second; // Возвращаем кэшированный шейдер
 	}
 
 	// Создаем новый шейдер
-	auto shader = std::make_shared<ShaderProgram>();
+	Shader *shader = new Shader();
+
 	if (!shader->loadFromFile(vertexPath, fragmentPath))
 	{
 		std::cerr << "Failed to load shader: Vertex(" << vertexPath << "), Fragment(" << fragmentPath << ")" << std::endl;

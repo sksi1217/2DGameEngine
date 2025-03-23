@@ -1,18 +1,18 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <src/graphics/Texture2D.h>     // Подключаем Texture2D
-#include <src/graphics/ShaderProgram.h> // Подключаем ShaderProgram
+#include <src/graphics/Texture2D.h> // Подключаем Texture2D
+#include <src/graphics/Shader.h>    // Подключаем ShaderProgram
 #include "GameObject.h"
 #include "GameWindow.h"
 
 #include <vector>
-#include <memory>                   // Для std::shared_ptr
+#include <memory> // Для std::shared_ptr
 
 class Game
 {
 public:
-    Game(int width = 640, int height = 480);
+    Game(int width = 800, int height = 600);
     ~Game();
 
     void Start();
@@ -33,7 +33,7 @@ private:
     void Initialize();
     void Run();
     void HandleEvents();
-    void Draw();
+    void Draw(float deltaTime);
     void Update(float deltaTime);
 };
 
