@@ -1,6 +1,6 @@
 #include <src/core/GameManager.h>
 
-#include <X11/Xlib.h>
+#include <GLFW/glfw3.h>
 #include <GL/glx.h>
 #include <stdexcept>
 #include <iostream>
@@ -12,9 +12,9 @@ public:
 
     ~OpenGLContext();
 
-    void Initialize();
+    void Initialize(GLFWwindow *window);
 
-    void swapBuffers() const;
+    void swapBuffers(GLFWwindow *window) const;
 
     bool isValid() const;
 

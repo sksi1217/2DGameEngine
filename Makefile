@@ -4,29 +4,35 @@ TARGET = build/myapp
 # Исходные файлы вашего проекта
 SRCS = main.cpp \
 	src/core/Game.cpp \
-	src/core/GameWindow.cpp \
 	src/core/GameObject.cpp \
 	src/core/GameManager.cpp \
-	src/openGL/OpenGLContex.cpp \
+	src/core/ImGuiManager.cpp \
+	src/openGL/OpenGLContext.cpp \
 	src/graphics/Texture2D.cpp \
 	src/graphics/Shader.cpp \
 	src/graphics/Render.cpp \
 	src/utils/ShaderLoader.cpp \
-	src/utils/TextureLoader.cpp
+	src/utils/TextureLoader.cpp \
+	imgui/imgui.cpp \
+	imgui/imgui_demo.cpp \
+	imgui/imgui_draw.cpp \
+	imgui/imgui_tables.cpp \
+	imgui/imgui_widgets.cpp \
+	imgui/backends/imgui_impl_opengl3.cpp \
+	imgui/backends/imgui_impl_glfw.cpp \
 
 # Компилятор
 CXX = g++
 
 # Флаги компиляции
-CXXFLAGS = -Wall -std=c++17 -I. -Iinclude
+CXXFLAGS = -Wall -std=c++17 -I. -Iinclude -Iimgui
 
 # Проверка операционной системы
 UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
-	# Для Linux: добавляем библиотеки OpenGL, X11 и GLEW
-	LDFLAGS += -lGL -lX11 -lGLEW
-	SRCS += src/platform/linux/X11Window.cpp
+	# Для Linux: добавляем библиотеки OpenGL, GLFW и GLEW
+	LDFLAGS += -lGL -lglfw -lGLEW
 else ifeq ($(OS), Windows_NT)
 	# Для Windows: добавляем флаг -mwindows и библиотеку OpenGL
 	LDFLAGS += -mwindows -lopengl32 -lgdi32

@@ -14,8 +14,6 @@ public:
 
 	Rect dstrect = {0.0f, 0.0f, 100.0f, 100.0f}; // Целевой прямоугольник на экране
 
-	float speed = 50.0f; // Скорость движения (пикселей/секунду)
-
 private:
 	Render renderer;
 

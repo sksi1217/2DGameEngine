@@ -1,31 +1,82 @@
 #include "Game.h"
 #include "GameManager.h"
 
-#include <src/openGL/OpenGLContex.h>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+#include <iostream>
+
 #include <src/utils/ShaderLoader.h>
 #include <src/utils/TextureLoader.h>
 #include <chrono>
 #include <iostream>
 
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Rect.h"
 
-OpenGLContext glContext;
-
-Game::Game(int width, int height) : gameWindow(width, height) {}
+Game::Game(int width, int height) : windowWidth(width), windowHeight(height) {}
 
 Game::~Game()
 {
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
+
+	glfwDestroyWindow(window);
+	glfwTerminate();
 }
 
 void Game::Initialize()
 {
+	// Инициализация GLFW
+	if (!glfwInit())
+	{
+		throw std::runtime_error("Failed to initialize GLFW");
+	}
+
+	// Настройка OpenGL контекста
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	// Создание окна
+	window = glfwCreateWindow(windowWidth, windowHeight, "ImGui + OpenGL Example", nullptr, nullptr);
+	if (!window)
+	{
+		glfwTerminate();
+		throw std::runtime_error("Failed to create GLFW window");
+	}
+
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1); // V-Sync
+
+	// Инициализация GLEW
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK)
+	{
+		throw std::runtime_error("Failed to initialize GLEW");
+	}
+
+	// Инициализация OpenGL контекста
 	try
 	{
-		glContext.Initialize();
+		glContext.Initialize(window);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "OpenGL init error: " << e.what() << std::endl;
+		return;
+	}
+
+	// Инициализация ImGuiManager (только после создания окна GLFW)
+	imguiManager = std::make_unique<ImGuiManager>(window);
+
+	try
+	{
+		glContext.Initialize(window);
 	}
 	catch (const std::exception &e)
 	{
@@ -65,10 +116,15 @@ void Game::Initialize()
 
 void Game::HandleEvents()
 {
-	// Обрабатываем события через GameWindow
-	if (!gameWindow.ProcessEvents())
+	glfwPollEvents();
+
+	ImGuiIO &io = ImGui::GetIO();
+	io.DisplaySize = ImVec2(static_cast<float>(windowWidth), static_cast<float>(windowHeight));
+
+	// Проверка закрытия окна
+	if (glfwWindowShouldClose(window))
 	{
-		isRunning = false; // Завершаем, если окно закрыто
+		isRunning = false;
 	}
 }
 
@@ -84,17 +140,15 @@ void Game::Run()
 	auto lastTime = std::chrono::high_resolution_clock::now();
 	while (isRunning)
 	{
-		// Рассчитываем deltaTime
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();
 		lastTime = currentTime;
 
+		HandleEvents();
+
 		Update(deltaTime);
 		Draw(deltaTime);
-		HandleEvents();
 	}
-	XDestroyWindow(GameManager::display, GameManager::window);
-	XCloseDisplay(GameManager::display);
 }
 
 void Game::Draw(float deltaTime)
@@ -105,25 +159,11 @@ void Game::Draw(float deltaTime)
 	for (const auto &obj : gameObj)
 	{
 		obj->Draw();
-
-		// Обновление позиции
-		obj->dstrect.x += obj->speed * deltaTime;
-
-		// Проверка границ (например, экран 800x600)
-		float rightBorder = 400.0f - obj->dstrect.w; // Правая граница с учетом ширины объекта
-		if (obj->dstrect.x >= rightBorder)
-		{
-			obj->dstrect.x = rightBorder; // Корректировка позиции
-			obj->speed *= -1;			  // Инверсия направления
-		}
-		if (obj->dstrect.x <= 0.0f)
-		{
-			obj->dstrect.x = 0.0f;
-			obj->speed *= -1;
-		}
+		imguiManager->DrawDebugPanel(deltaTime, gameObj.size(), obj->dstrect);
 	}
 
-	glContext.swapBuffers();
+	// Меняем буферы
+	glContext.swapBuffers(window);
 }
 
 void Game::Update(float deltaTime)
