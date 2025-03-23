@@ -1,13 +1,13 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <src/graphics/Texture2D.h>     // Подключаем Texture2D
+#include <src/graphics/ShaderProgram.h> // Подключаем ShaderProgram
+#include "GameObject.h"
 #include "GameWindow.h"
 
 #include <vector>
 #include <memory>                   // Для std::shared_ptr
-#include "Graphics/Texture2D.h"     // Подключаем Texture2D
-#include "Graphics/ShaderProgram.h" // Подключаем ShaderProgram
-#include "GameObject.h"
 
 class Game
 {

@@ -1,4 +1,4 @@
-#include "Resources/GameManager.h"
+#include <src/core/GameManager.h>
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>

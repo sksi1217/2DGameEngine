@@ -1,4 +1,4 @@
-#include "Core/Game.h"
+#include "src/core/Game.h"
 
 #include <iostream>
 
@@ -6,7 +6,7 @@ int main()
 {
     try
     {
-        Game game(640, 480); // Создаем игру с размером окна 800x600
+        Game game(800, 600); // Создаем игру с размером окна 800x600
         game.Start();        // Запускаем игровой цикл
     }
     catch (const std::exception &e)

@@ -1,5 +1,5 @@
 #include "TextureLoader.h"
-#include "../Graphics/Texture2D.h"
+#include <src/graphics/Texture2D.h>
 #include <memory>
 #include <iostream>
 

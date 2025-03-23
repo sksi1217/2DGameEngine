@@ -4,9 +4,9 @@
 #include <memory>
 
 #ifdef _WIN32
-#include "../Platform/Win32Window.h"
+#include <src/platform/windows/Win32Window.h>
 #elif __linux__
-#include "../Platform/X11Window.h"
+#include <src/platform/linux/X11Window.h>
 #endif
 
 class GameWindow

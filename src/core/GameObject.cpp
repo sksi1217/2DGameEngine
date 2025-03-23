@@ -49,7 +49,31 @@ void GameObject::Draw()
 	// Создаем матрицу преобразования
 	glm::mat4 model = glm::mat4(1.0f);
 
-	// Передаем матрицу в шейдер
+	// Пример для экрана 800x600 пикселей
+	float left = 0.0f;
+	float right = 800.0f;
+	float bottom = 600.0f; // Обратите внимание: начало координат — левый верхний угол
+	float top = 0.0f;
+	model = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
+	// 5. Горизонтальный флип
+	if (FlipHorizontal)
+	{
+		model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
+	}
+
+	// 6. Вертикальный флип
+	if (FlipVertical)
+	{
+		model = glm::scale(model, glm::vec3(1.0f, -1.0f, 1.0f));
+	}
+
+	model = glm::translate(model, glm::vec3(Position, 0.0f)); // Позиция
+
+	model = glm::translate(model, glm::vec3(Origin, 0.0f));							 // Перемещаем центр вращения в начало координат
+	model = glm::rotate(model, glm::radians(Rotation), glm::vec3(0.0f, 0.0f, 1.0f)); // Поворачиваем вокруг оси Z
+	model = glm::translate(model, glm::vec3(-Origin, 0.0f));						 // Возвращаем объект обратно
+
+	// Передача матрицы трансформации в шейдер
 	shader->setMat4("transform", model);
 
 	glBindVertexArray(VAO);

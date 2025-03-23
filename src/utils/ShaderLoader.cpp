@@ -1,5 +1,5 @@
 #include "ShaderLoader.h"
-#include "../Graphics/ShaderProgram.h"
+#include <src/graphics/ShaderProgram.h>
 #include <iostream>
 
 // Инициализация статического кэша

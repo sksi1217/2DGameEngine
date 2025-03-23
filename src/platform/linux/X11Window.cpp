@@ -1,8 +1,8 @@
 #ifdef __linux__
 #include "X11Window.h"
-#include "../Resources/GameManager.h"
 
 #include <iostream>
+#include <src/core/GameManager.h>
 
 X11Window::X11Window(int width, int height)
 {

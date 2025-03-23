@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <memory>
 
-// class Texture2D; // Предварительное объявление
+class Texture2D;
 
 class TextureLoader
 {
