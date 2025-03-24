@@ -11,6 +11,7 @@ public:
 	~GameObject();
 
 	void Draw();
+	void AddEffect(Shader *effectShader); // Добавить эффект
 
 	Rect dstrect = {0.0f, 0.0f, 100.0f, 100.0f}; // Целевой прямоугольник на экране
 
@@ -23,7 +24,8 @@ private:
 	float angle = 0;
 
 	Texture2D *texture;
-	Shader *shader;
+	Shader *baseShader;
+	std::vector<Shader *> effectShaders; // Список эффектов
 };
 
 #endif // RENDERABLE_H

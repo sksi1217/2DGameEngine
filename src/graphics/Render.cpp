@@ -66,7 +66,7 @@ void Render::RenderSprite(Texture2D *texture, Shader *shader, const Rect *srcrec
 		vertices[i + 1] = vStart + v * (vEnd - vStart); // Интерполируем V
 	}
 
-	// Привязываем VAO и обновляем данные в VBO
+	// Привязываем VAO и обновляе 	м данные в VBO
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);

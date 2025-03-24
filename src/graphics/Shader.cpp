@@ -122,3 +122,27 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &matrix) const
 	}
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
+
+void Shader::setVec3(const std::string &name, const glm::vec3 &value) const
+{
+	glUniform3fv(glGetUniformLocation(programID, name.c_str()), 1, glm::value_ptr(value));
+}
+
+void Shader::setVec2(const std::string &name, const glm::vec2 &value) const
+{
+	// Используем glGetUniformLocation для получения расположения uniform-переменной
+	int location = glGetUniformLocation(programID, name.c_str());
+	if (location == -1)
+	{
+		std::cerr << "Uniform variable '" << name << "' not found!" << std::endl;
+		return;
+	}
+
+	// Устанавливаем значение vec2 с помощью glUniform2fv
+	glUniform2fv(location, 1, glm::value_ptr(value));
+}
+
+void Shader::setFloat(const std::string &name, float value) const
+{
+	glUniform1f(glGetUniformLocation(programID, name.c_str()), value);
+}

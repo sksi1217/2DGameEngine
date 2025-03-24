@@ -74,16 +74,6 @@ void Game::Initialize()
 	// Инициализация ImGuiManager (только после создания окна GLFW)
 	imguiManager = std::make_unique<ImGuiManager>(window);
 
-	try
-	{
-		glContext.Initialize(window);
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "OpenGL init error: " << e.what() << std::endl;
-		return;
-	}
-
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
 	{
@@ -91,14 +81,16 @@ void Game::Initialize()
 		return;
 	}
 
-	Shader *shader1 = ShaderLoader::loadShader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
-	if (!shader1)
-	{
-		std::cout << "Failed to load Shaders!" << std::endl;
-	}
-
 	// Загружаем текстуры
 	Texture2D *texture1 = TextureLoader::loadTexture("assets/textures/texture.png");
+	// Загружаем шейдеров
+	Shader *baseShader = ShaderLoader::loadShader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
+	Shader *blurShader = ShaderLoader::loadShader("assets/shaders/blur_vertex.glsl", "assets/shaders/blur_fragment.glsl");
+	if (!baseShader || !blurShader)
+	{
+		std::cout << "Failed to load Shaders!" << std::endl;
+		return;
+	}
 
 	if (!texture1)
 	{
@@ -108,7 +100,8 @@ void Game::Initialize()
 
 	// auto obj1 = std::make_shared<GameObject>(texture1, shader1);
 
-	auto obj1 = std::make_shared<GameObject>(texture1, shader1);
+	auto obj1 = std::make_shared<GameObject>(texture1, baseShader);
+	obj1->AddEffect(blurShader);
 
 	// gameObj.push_back(obj1);
 	gameObj.push_back(obj1);
