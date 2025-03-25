@@ -10,6 +10,8 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <memory> // Для std::shared_ptr
+#include <src/openGL/Framebuffer.h>
+#include <src/graphics/ScreenQuadRenderer.h>
 
 class Game
 {
@@ -27,6 +29,10 @@ private:
     int windowHeight = 600;
     bool isRunning = true;
     float deltaTime = 0;
+
+    ScreenQuadRenderer *screenQuadRenderer;
+
+    Framebuffer framebuffer;
     GLuint VAO, VBO;
 
     OpenGLContext glContext;
@@ -44,6 +50,7 @@ private:
     void HandleEvents();
     void Draw(float deltaTime);
     void Update(float deltaTime);
+    void ApplyGrayscaleEffect();
 };
 
 #endif // GAME_H

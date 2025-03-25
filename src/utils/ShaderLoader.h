@@ -40,7 +40,7 @@ private:
 	/*
 	 ? Кэш загруженных шейдеров
 	 ! ShaderKey:  Тип ключа.
-	 ! std::weak_ptr<Shader>:  Тип значения.
+	 ! Shader *:  Тип значения.
 	 ! ShaderKeyHash:  Хеш-функция.
 	*/
 	static std::unordered_map<ShaderKey, Shader *, ShaderKeyHash> shaderCache;

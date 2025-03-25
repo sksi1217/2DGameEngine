@@ -10,7 +10,7 @@ public:
 	~Texture2D();
 
 	// Загрузка текстуры из файла
-	bool loadFromFile(const std::string &filePath);
+	bool createTextureFromFile(const std::string &filePath);
 
 	void bind() const;
 	// Получение ID текстуры

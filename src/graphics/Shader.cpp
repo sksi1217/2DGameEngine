@@ -125,7 +125,13 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &matrix) const
 
 void Shader::setVec3(const std::string &name, const glm::vec3 &value) const
 {
-	glUniform3fv(glGetUniformLocation(programID, name.c_str()), 1, glm::value_ptr(value));
+	GLint location = glGetUniformLocation(programID, name.c_str());
+	if (location == -1)
+	{
+		std::cerr << "Uniform variable not found: " << name << std::endl;
+		return;
+	}
+	glUniform3fv(location, 1, glm::value_ptr(value));
 }
 
 void Shader::setVec2(const std::string &name, const glm::vec2 &value) const
@@ -144,5 +150,11 @@ void Shader::setVec2(const std::string &name, const glm::vec2 &value) const
 
 void Shader::setFloat(const std::string &name, float value) const
 {
-	glUniform1f(glGetUniformLocation(programID, name.c_str()), value);
+	GLint location = glGetUniformLocation(programID, name.c_str());
+	if (location == -1)
+	{
+		std::cerr << "Uniform variable not found: " << name << std::endl;
+		return;
+	}
+	glUniform1f(location, value);
 }

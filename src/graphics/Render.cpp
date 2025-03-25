@@ -7,22 +7,23 @@
 
 Render::Render()
 {
+	// ? Саздаем VAO и VBO
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
+	// ? Привязываем VAO и VBO (для хранения данных о вершинах)
 	glBindVertexArray(VAO);
-
-	// Привязываем VBO для хранения данных о вершинах
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	// Атрибуты вершин (позиция и текстурные координаты)
+	// ? Атрибуты вершин (позиция и текстурные координаты)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
 	glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	glBindVertexArray(0); // Отвязываем VAO
+	// ? Отвязываем VAO
+	glBindVertexArray(0);
 }
 
 Render::~Render()
@@ -66,9 +67,10 @@ void Render::RenderSprite(Texture2D *texture, Shader *shader, const Rect *srcrec
 		vertices[i + 1] = vStart + v * (vEnd - vStart); // Интерполируем V
 	}
 
-	// Привязываем VAO и обновляе 	м данные в VBO
+	// ? Привязываем VAO и VBO (для хранения данных о вершинах)
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
 	// Матрица трансформации
@@ -90,7 +92,6 @@ void Render::RenderSprite(Texture2D *texture, Shader *shader, const Rect *srcrec
 	shader->setMat4("transform", model);
 
 	// Рисуем треугольники
-	glBindVertexArray(VAO);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 	glBindVertexArray(0); // Отвязываем VAO

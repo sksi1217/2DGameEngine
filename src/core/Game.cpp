@@ -18,10 +18,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Rect.h"
 
+Shader *grayscaleShader;
+
 Game::Game(int width, int height) : windowWidth(width), windowHeight(height) {}
 
 Game::~Game()
 {
+	TextureLoader::clearCache();
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 
@@ -81,12 +84,19 @@ void Game::Initialize()
 		return;
 	}
 
+	// Инициализация Framebuffer
+	framebuffer.Init(windowWidth, windowHeight);
+	screenQuadRenderer = new ScreenQuadRenderer();
+
 	// Загружаем текстуры
 	Texture2D *texture1 = TextureLoader::loadTexture("assets/textures/texture.png");
 	// Загружаем шейдеров
-	Shader *baseShader = ShaderLoader::loadShader("assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl");
-	Shader *blurShader = ShaderLoader::loadShader("assets/shaders/blur_vertex.glsl", "assets/shaders/blur_fragment.glsl");
-	if (!baseShader || !blurShader)
+	Shader *baseShader = ShaderLoader::loadShader("assets/shaders/vertex.glsl", "assets/shaders/fragment.frag");
+	// Shader *blurShader = ShaderLoader::loadShader("assets/shaders/blur_vertex.glsl", "assets/shaders/blur_fragment.glsl");
+
+	grayscaleShader = ShaderLoader::loadShader("assets/shaders/grayscale_vertex.glsl", "assets/shaders/grayscale_fragment.frag");
+
+	if (!baseShader || !grayscaleShader)
 	{
 		std::cout << "Failed to load Shaders!" << std::endl;
 		return;
@@ -101,7 +111,6 @@ void Game::Initialize()
 	// auto obj1 = std::make_shared<GameObject>(texture1, shader1);
 
 	auto obj1 = std::make_shared<GameObject>(texture1, baseShader);
-	obj1->AddEffect(blurShader);
 
 	// gameObj.push_back(obj1);
 	gameObj.push_back(obj1);
@@ -149,11 +158,20 @@ void Game::Draw(float deltaTime)
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// Привязываем FBO для рендеринга в текстуру
+	framebuffer.Bind();
+
 	for (const auto &obj : gameObj)
 	{
 		obj->Draw();
 		imguiManager->DrawDebugPanel(deltaTime, gameObj.size(), obj->dstrect);
 	}
+
+	// Отвязываем FBO, чтобы вернуться к рендерингу на экран
+	framebuffer.Unbind();
+
+	// Теперь применяем эффект черно-белого фильтра к текстуре из FBO
+	ApplyGrayscaleEffect();
 
 	// Меняем буферы
 	glContext.swapBuffers(window);
@@ -161,4 +179,25 @@ void Game::Draw(float deltaTime)
 
 void Game::Update(float deltaTime)
 {
+}
+
+void Game::ApplyGrayscaleEffect()
+{
+	// Используем шейдер для черно-белого эффекта
+	grayscaleShader->use();
+
+	GLuint textureID = framebuffer.GetTexture();
+	if (textureID == 0)
+	{
+		std::cerr << "Framebuffer texture is not initialized!" << std::endl;
+		return;
+	}
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	// Устанавливаем матрицу трансформации для отрисовки на весь экран
+	glm::mat4 model = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f, -1.0f, 1.0f);
+	grayscaleShader->setMat4("transform", model);
+
+	// Отрисовываем текстуру на весь экран
+	screenQuadRenderer->Render();
 }

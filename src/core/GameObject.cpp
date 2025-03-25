@@ -27,6 +27,7 @@ void GameObject::Draw()
 	// Применяем базовый шейдер
 	renderer.RenderSprite(texture, baseShader, &srcrect, &dstrect, angle, &origin);
 
+	/*
 	// Применяем эффекты
 	for (auto *effectShader : effectShaders)
 	{
@@ -35,9 +36,12 @@ void GameObject::Draw()
 		effectShader->setVec2("texOffset", glm::vec2(1.0f / 32, 0.0f)); // Смещение по горизонтали
 		renderer.RenderSprite(texture, effectShader, &srcrect, &dstrect, angle, &origin);
 	}
+		*/
 }
 
+/*
 void GameObject::AddEffect(Shader *effectShader)
 {
 	effectShaders.push_back(effectShader);
 }
+*/

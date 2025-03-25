@@ -16,7 +16,7 @@ Texture2D *TextureLoader::loadTexture(const std::string &filePath)
 
 	// Создаем новую текстуру
 	Texture2D *texture = new Texture2D();
-	if (!texture->loadFromFile(filePath))
+	if (!texture->createTextureFromFile(filePath))
 	{
 		std::cerr << "Failed to load texture: " << filePath << std::endl;
 		delete texture;

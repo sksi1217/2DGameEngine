@@ -14,7 +14,7 @@ Texture2D::~Texture2D()
 	}
 }
 
-bool Texture2D::loadFromFile(const std::string &filePath)
+bool Texture2D::createTextureFromFile(const std::string &filePath)
 {
 	int channels;
 	unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &channels, 0);
@@ -24,35 +24,24 @@ bool Texture2D::loadFromFile(const std::string &filePath)
 		return false;
 	}
 
+	// ? Создаем текстуру
 	glGenTextures(1, &textureID);
-	/*
-		! создает новую текстуру в OpenGL
-		! 1 — количество текстур, которые нужно создать.
-		! &textureID — указатель на переменную, куда будет записан идентификатор созданной текстуры.
-	*/
 
-	glBindTexture(GL_TEXTURE_2D, textureID); // ! делает текстуру активной
+	// ? делает текстуру активной
+	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	// Настройка параметров текстуры
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	/*
-		! определяют, как текстура будет повторяться по горизонтали (S) и вертикали (T):
-		! GL_REPEAT — текстура будет повторяться бесконечно.
-	*/
-
+	// ? Настройка параметров текстуры
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	/*
-		! GL_TEXTURE_MIN_FILTER — определяет, как текстура будет масштабироваться при уменьшении:
-		! GL_LINEAR — линейная интерполяция (сглаживание).
-		! GL_TEXTURE_MAG_FILTER — определяет, как текстура будет масштабироваться при увеличении:
-		! GL_LINEAR — линейная интерполяция.
-	*/
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	// Загрузка данных текстуры
+	// ? Загрузка данных текстуры
 	GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
 	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+	// ? Отвязываем текстуру
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	stbi_image_free(data);
 	return true;
