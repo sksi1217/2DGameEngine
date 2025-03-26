@@ -90,6 +90,7 @@ void Game::Initialize()
 
 	// Загружаем текстуры
 	Texture2D *texture1 = TextureLoader::loadTexture("assets/textures/texture.png");
+	Texture2D *texture2 = TextureLoader::loadTexture("assets/textures/qweqwe1.png");
 	// Загружаем шейдеров
 	Shader *baseShader = ShaderLoader::loadShader("assets/shaders/vertex.glsl", "assets/shaders/fragment.frag");
 	// Shader *blurShader = ShaderLoader::loadShader("assets/shaders/blur_vertex.glsl", "assets/shaders/blur_fragment.glsl");
@@ -102,17 +103,17 @@ void Game::Initialize()
 		return;
 	}
 
-	if (!texture1)
+	if (!texture1 || !texture2)
 	{
 		std::cerr << "Failed to load textures!" << std::endl;
 		return;
 	}
 
-	// auto obj1 = std::make_shared<GameObject>(texture1, shader1);
+	auto obj2 = std::make_shared<GameObject>(texture1, baseShader);
 
 	auto obj1 = std::make_shared<GameObject>(texture1, baseShader);
 
-	// gameObj.push_back(obj1);
+	gameObj.push_back(obj2);
 	gameObj.push_back(obj1);
 }
 
@@ -155,23 +156,22 @@ void Game::Run()
 
 void Game::Draw(float deltaTime)
 {
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	// Привязываем FBO для рендеринга в текстуру
+	// Рендер в FBO
 	framebuffer.Bind();
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // <--- Добавить очистку
 
 	for (const auto &obj : gameObj)
 	{
 		obj->Draw();
-		imguiManager->DrawDebugPanel(deltaTime, gameObj.size(), obj->dstrect);
 	}
-
-	// Отвязываем FBO, чтобы вернуться к рендерингу на экран
 	framebuffer.Unbind();
 
-	// Теперь применяем эффект черно-белого фильтра к текстуре из FBO
+	// Применение эффекта
 	ApplyGrayscaleEffect();
+
+	// Рендер ImGui ПОСЛЕ всех эффектов
+	imguiManager->DrawDebugPanel(deltaTime, gameObj.size(), gameObj[0]->dstrect);
 
 	// Меняем буферы
 	glContext.swapBuffers(window);
