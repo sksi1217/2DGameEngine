@@ -14,21 +14,29 @@ OpenGLContext::~OpenGLContext()
 
 void OpenGLContext::Initialize(GLFWwindow *window)
 {
-    if (!window)
+    try
     {
-        throw std::runtime_error("Invalid GLFW window handle");
+        if (!window)
+        {
+            throw std::runtime_error("Invalid GLFW window handle");
+        }
+
+        // Связываем контекст OpenGL с текущим окном GLFW
+        glfwMakeContextCurrent(window);
+
+        // Проверка версии OpenGL
+        if (glGetString(GL_VERSION) == nullptr)
+        {
+            throw std::runtime_error("Failed to initialize OpenGL context");
+        }
+
+        std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
     }
-
-    // Связываем контекст OpenGL с текущим окном GLFW
-    glfwMakeContextCurrent(window);
-
-    // Проверка версии OpenGL
-    if (glGetString(GL_VERSION) == nullptr)
+    catch (const std::exception &e)
     {
-        throw std::runtime_error("Failed to initialize OpenGL context");
+        std::cerr << "OpenGL init error: " << e.what() << std::endl;
+        return;
     }
-
-    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 }
 
 void OpenGLContext::swapBuffers(GLFWwindow *window) const

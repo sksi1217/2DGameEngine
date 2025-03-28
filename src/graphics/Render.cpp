@@ -4,6 +4,7 @@
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <src/core/Camera.h>
 
 Render::Render()
 {
@@ -30,6 +31,11 @@ Render::~Render()
 {
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
+}
+
+void Render::setCamera(Camera *newCamera)
+{
+	camera = newCamera;
 }
 
 void Render::RenderSprite(Texture2D *texture, Shader *shader, const Rect *srcrect, const Rect *dstrect, double angle, const Rect *origin)
@@ -67,7 +73,7 @@ void Render::RenderSprite(Texture2D *texture, Shader *shader, const Rect *srcrec
 		vertices[i + 1] = vStart + v * (vEnd - vStart); // Интерполируем V
 	}
 
-	// ? Привязываем VAO и VBO (для хранения данных о вершинах)
+	// Привязываем VAO и VBO (для хранения данных о вершинах)
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
@@ -76,20 +82,20 @@ void Render::RenderSprite(Texture2D *texture, Shader *shader, const Rect *srcrec
 	// Матрица трансформации
 	glm::mat4 model = glm::mat4(1.0f);
 
-	// Временное решение камеры
-	float left = 0.0f;
-	float right = 800.0f;
-	float bottom = 600.0f; // Обратите внимание: начало координат — левый верхний угол
-	float top = 0.0f;
-	model = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
-
 	// Корректное применение трансформаций для вращения
-	model = glm::translate(model, glm::vec3(dstrect->x, dstrect->y, 0.0f));							  // Перемещение объекта
+	model = glm::translate(model, glm::vec3(dstrect->x - origin->x, dstrect->y - origin->y, 0.0f));	  // Перемещение объекта
 	model = glm::translate(model, glm::vec3(dstrect->x + origin->x, dstrect->y + origin->y, 0.0f));	  // Перемещение к точке вращения
 	model = glm::rotate(model, glm::radians((float)angle), glm::vec3(0.0f, 0.0f, 1.0f));			  // Поворот
 	model = glm::translate(model, glm::vec3(-dstrect->x - origin->x, -dstrect->y - origin->y, 0.0f)); // Возврат к исходной позиции
 
-	shader->setMat4("transform", model);
+	// Получаем матрицы камеры
+	const glm::mat4 &view = camera->getViewMatrix();
+	const glm::mat4 &projection = camera->getProjectionMatrix();
+
+	// Передаем матрицы в шейдер
+	shader->setMat4("model", model);
+	shader->setMat4("view", view);
+	shader->setMat4("projection", projection);
 
 	// Рисуем треугольники
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

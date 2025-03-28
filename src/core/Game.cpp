@@ -1,103 +1,62 @@
 #include "Game.h"
-#include "GameManager.h"
 
 #include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <iostream>
 
-#include <src/utils/ShaderLoader.h>
-#include <src/utils/TextureLoader.h>
 #include <chrono>
 #include <iostream>
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
+#include <imgui/backends/imgui_impl_glfw.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Rect.h"
+#include <src/core/GameWindow.h>
 
 Shader *grayscaleShader;
+GameWindow windowGame;
 
 Game::Game(int width, int height) : windowWidth(width), windowHeight(height) {}
 
 Game::~Game()
 {
+	delete grayscaleShader;
 	TextureLoader::clearCache();
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-
-	glfwDestroyWindow(window);
 	glfwTerminate();
 }
 
 void Game::Initialize()
 {
-	// Инициализация GLFW
-	if (!glfwInit())
-	{
-		throw std::runtime_error("Failed to initialize GLFW");
-	}
-
-	// Настройка OpenGL контекста
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	// Создание окна
-	window = glfwCreateWindow(windowWidth, windowHeight, "ImGui + OpenGL Example", nullptr, nullptr);
-	if (!window)
-	{
-		glfwTerminate();
-		throw std::runtime_error("Failed to create GLFW window");
-	}
-
-	glfwMakeContextCurrent(window);
-	glfwSwapInterval(1); // V-Sync
+	// Инициализация окна
+	window = windowGame.InitWindow("Test", windowWidth, windowHeight);
 
 	// Инициализация GLEW
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
-	{
 		throw std::runtime_error("Failed to initialize GLEW");
-	}
 
 	// Инициализация OpenGL контекста
-	try
-	{
-		glContext.Initialize(window);
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "OpenGL init error: " << e.what() << std::endl;
-		return;
-	}
+	glContext.Initialize(window);
 
 	// Инициализация ImGuiManager (только после создания окна GLFW)
 	imguiManager = std::make_unique<ImGuiManager>(window);
 
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-	{
-		std::cerr << "Failed to initialize GLEW!" << std::endl;
-		return;
-	}
+	camera = new Camera(static_cast<float>(windowWidth),
+						static_cast<float>(windowHeight));
+}
 
-	// Инициализация Framebuffer
-	framebuffer.Init(windowWidth, windowHeight);
-	screenQuadRenderer = new ScreenQuadRenderer();
-
+void Game::LoadContent()
+{
 	// Загружаем текстуры
 	Texture2D *texture1 = TextureLoader::loadTexture("assets/textures/texture.png");
 	Texture2D *texture2 = TextureLoader::loadTexture("assets/textures/qweqwe1.png");
 	// Загружаем шейдеров
 	Shader *baseShader = ShaderLoader::loadShader("assets/shaders/vertex.glsl", "assets/shaders/fragment.frag");
-	// Shader *blurShader = ShaderLoader::loadShader("assets/shaders/blur_vertex.glsl", "assets/shaders/blur_fragment.glsl");
 
-	grayscaleShader = ShaderLoader::loadShader("assets/shaders/grayscale_vertex.glsl", "assets/shaders/grayscale_fragment.frag");
-
-	if (!baseShader || !grayscaleShader)
+	if (!baseShader)
 	{
 		std::cout << "Failed to load Shaders!" << std::endl;
 		return;
@@ -109,37 +68,55 @@ void Game::Initialize()
 		return;
 	}
 
-	auto obj2 = std::make_shared<GameObject>(texture1, baseShader);
+	GameObject *obj1 = new GameObject(texture1, baseShader);
+	GameObject *obj2 = new GameObject(texture1, baseShader);
+	obj2->dstrect.x = 100;
+	obj2->dstrect.y = 100;
 
-	auto obj1 = std::make_shared<GameObject>(texture1, baseShader);
+	obj1->renderer.setCamera(camera);
+	obj2->renderer.setCamera(camera);
 
-	gameObj.push_back(obj2);
 	gameObj.push_back(obj1);
+	gameObj.push_back(obj2);
 }
 
 void Game::HandleEvents()
 {
 	glfwPollEvents();
 
+	// Получаем текущие размеры окна
+	int newWidth, newHeight;
+	glfwGetFramebufferSize(window, &newWidth, &newHeight);
+
+	if (newWidth != windowWidth || newHeight != windowHeight)
+	{
+		windowWidth = newWidth;
+		windowHeight = newHeight;
+
+		// Обновляем область просмотра
+		glViewport(0, 0, windowWidth, windowHeight);
+
+		// Обновляем матрицу проекции камеры
+		camera->resize(static_cast<float>(windowWidth), static_cast<float>(windowHeight));
+	}
+
 	ImGuiIO &io = ImGui::GetIO();
 	io.DisplaySize = ImVec2(static_cast<float>(windowWidth), static_cast<float>(windowHeight));
 
 	// Проверка закрытия окна
 	if (glfwWindowShouldClose(window))
-	{
 		isRunning = false;
-	}
 }
 
 void Game::Start()
 {
 	Initialize();
+	LoadContent();
 	Run();
 }
 
 void Game::Run()
 {
-	// Переменные для расчета времени
 	auto lastTime = std::chrono::high_resolution_clock::now();
 	while (isRunning)
 	{
@@ -156,48 +133,19 @@ void Game::Run()
 
 void Game::Draw(float deltaTime)
 {
-	// Рендер в FBO
-	framebuffer.Bind();
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // <--- Добавить очистку
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	for (const auto &obj : gameObj)
 	{
 		obj->Draw();
 	}
-	framebuffer.Unbind();
 
-	// Применение эффекта
-	ApplyGrayscaleEffect();
-
-	// Рендер ImGui ПОСЛЕ всех эффектов
 	imguiManager->DrawDebugPanel(deltaTime, gameObj.size(), gameObj[0]->dstrect);
 
-	// Меняем буферы
 	glContext.swapBuffers(window);
 }
 
 void Game::Update(float deltaTime)
 {
-}
-
-void Game::ApplyGrayscaleEffect()
-{
-	// Используем шейдер для черно-белого эффекта
-	grayscaleShader->use();
-
-	GLuint textureID = framebuffer.GetTexture();
-	if (textureID == 0)
-	{
-		std::cerr << "Framebuffer texture is not initialized!" << std::endl;
-		return;
-	}
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	// Устанавливаем матрицу трансформации для отрисовки на весь экран
-	glm::mat4 model = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f, -1.0f, 1.0f);
-	grayscaleShader->setMat4("transform", model);
-
-	// Отрисовываем текстуру на весь экран
-	screenQuadRenderer->Render();
 }

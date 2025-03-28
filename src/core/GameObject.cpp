@@ -10,38 +10,25 @@ GameObject::GameObject(Texture2D *texture, Shader *baseShader)
 		std::cerr << "Failed to initialize GameObject!" << std::endl;
 	}
 
-	srcrect = {0.0f, 0.0f, 32.0f, 32.0f};
-	dstrect = {100.0f, 100.0f, 100.0f, 100.0f}; // Позиция и размер объекта
-	origin = {50.0f, 50.0f, 0.0f, 0.0f};		// Локальные координаты центра
+	srcrect = {0.0f, 0.0f, 32.0f, 32.0f};	// позиция и размер текстуры
+	dstrect = {0.0f, 0.0f, 100.0f, 100.0f}; // Позиция и размер объекта
+	origin = {100.0f, 0.0f, 0.0f, 0.0f};	// Локальные координаты центра
 }
 
 GameObject::~GameObject()
 {
+	delete this;
 }
 
 void GameObject::Draw()
 {
-	// Отрисовка спрайта
-	// renderer.RenderSprite(texture, shader, &srcrect, &dstrect, angle, &origin);
 
-	// Применяем базовый шейдер
-	renderer.RenderSprite(texture, baseShader, &srcrect, &dstrect, angle, &origin);
-
-	/*
-	// Применяем эффекты
-	for (auto *effectShader : effectShaders)
+	if (angle >= 360)
 	{
-		effectShader->use();
-		effectShader->setFloat("blurRadius", 5.0f);						// Радиус размытия
-		effectShader->setVec2("texOffset", glm::vec2(1.0f / 32, 0.0f)); // Смещение по горизонтали
-		renderer.RenderSprite(texture, effectShader, &srcrect, &dstrect, angle, &origin);
+		angle = 0;
 	}
-		*/
-}
 
-/*
-void GameObject::AddEffect(Shader *effectShader)
-{
-	effectShaders.push_back(effectShader);
+	angle++;
+
+	renderer.RenderSprite(texture, baseShader, &srcrect, &dstrect, angle, &origin);
 }
-*/

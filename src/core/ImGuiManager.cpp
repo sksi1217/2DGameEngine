@@ -46,8 +46,8 @@ void ImGuiManager::DrawDebugPanel(float deltaTime, size_t gameObjectsCount, Rect
 	ImGui::Text("FPS: %.1f", fps);
 	ImGui::Text("Delta Time: %.3f ms", deltaTime * 1000.0f);
 	ImGui::Text("Game Objects: %zu", gameObjectsCount);
-	ImGui::SliderFloat("Floatx", &x.x, 0.0f, 500.0f);
-	ImGui::SliderFloat("Floaty", &x.y, 0.0f, 300.0f);
+	ImGui::SliderFloat("Floatx", &x.x, 0.0f, 800.0f);
+	ImGui::SliderFloat("Floaty", &x.y, 0.0f, 600.0f);
 	if (ImGui::Button("Close"))
 	{
 		glfwSetWindowShouldClose(window, GLFW_TRUE); // Закрытие окна через GLFW

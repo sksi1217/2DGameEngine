@@ -4,8 +4,9 @@ TARGET = build/myapp
 # Исходные файлы вашего проекта
 SRCS = main.cpp \
 	src/core/Game.cpp \
+	src/core/GameWindow.cpp \
 	src/core/GameObject.cpp \
-	src/core/GameManager.cpp \
+	src/core/Camera.cpp \
 	src/core/ImGuiManager.cpp \
 	src/openGL/OpenGLContext.cpp \
 	src/openGL/Framebuffer.cpp \
@@ -27,7 +28,7 @@ SRCS = main.cpp \
 CXX = g++
 
 # Флаги компиляции
-CXXFLAGS = -Wall -std=c++17 -I. -Iinclude -Iimgui
+CXXFLAGS = -Wall -std=c++17 -I. -Iinclude -Iimgui -g
 
 # Проверка операционной системы
 UNAME := $(shell uname)

@@ -1,17 +1,20 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <src/graphics/Texture2D.h> // Подключаем Texture2D
-#include <src/graphics/Shader.h>    // Подключаем ShaderProgram
+#include <src/utils/ShaderLoader.h>
+#include <src/utils/TextureLoader.h>
+#include <src/graphics/Texture2D.h>
+#include <src/graphics/Shader.h>
+
+#include <src/include/stb_image.h>
 #include <src/core/GameObject.h>
 #include <src/core/ImGuiManager.h>
 #include <src/openGL/OpenGLContext.h>
 
-#include <GLFW/glfw3.h>
 #include <vector>
-#include <memory> // Для std::shared_ptr
-#include <src/openGL/Framebuffer.h>
+#include <memory>
 #include <src/graphics/ScreenQuadRenderer.h>
+#include "Camera.h"
 
 class Game
 {
@@ -21,7 +24,7 @@ public:
 
     void Start();
 
-    std::vector<std::shared_ptr<GameObject>> gameObj;
+    std::vector<GameObject *> gameObj;
 
 private:
     // GameWindow gameWindow; // Используем новый класс
@@ -30,27 +33,18 @@ private:
     bool isRunning = true;
     float deltaTime = 0;
 
-    ScreenQuadRenderer *screenQuadRenderer;
-
-    Framebuffer framebuffer;
-    GLuint VAO, VBO;
-
     OpenGLContext glContext;
     std::unique_ptr<ImGuiManager> imguiManager;
 
+    Camera *camera;
     GLFWwindow *window;
 
-    void DrawTexture(
-        std::shared_ptr<Texture2D> texture,
-        float x, float y, float width, float height,
-        float angle = 0.0f, bool flipHorizontal = false, bool flipVertical = false);
-
     void Initialize();
+    void LoadContent();
     void Run();
     void HandleEvents();
     void Draw(float deltaTime);
     void Update(float deltaTime);
-    void ApplyGrayscaleEffect();
 };
 
 #endif // GAME_H

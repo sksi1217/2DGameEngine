@@ -1,5 +1,3 @@
-#include <src/core/GameManager.h>
-
 #include <GLFW/glfw3.h>
 #include <GL/glx.h>
 #include <stdexcept>

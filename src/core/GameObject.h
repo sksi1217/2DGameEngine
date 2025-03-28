@@ -11,12 +11,21 @@ public:
 	~GameObject();
 
 	void Draw();
-	// void AddEffect(Shader *effectShader); // Добавить эффект
+
+	void SetNormalizedPosition(float normX, float normY, int windowWidth, int windowHeight);
 
 	Rect dstrect = {0.0f, 0.0f, 100.0f, 100.0f}; // Целевой прямоугольник на экране
 
-private:
+	glm::vec2 getPosition() const
+	{
+		return glm::vec2(dstrect.x, dstrect.y);
+	}
 	Render renderer;
+	Shader *baseShader;
+
+private:
+	float normX; // Нормализованная координата X
+	float normY; // Нормализованная координата Y
 
 	Rect srcrect = {0.0f, 0.0f, 1.0f, 1.0f};
 	Rect origin = {0.0f, 0.0f, 0.0f, 0.0f}; // Точка вращения
@@ -24,7 +33,6 @@ private:
 	float angle = 0;
 
 	Texture2D *texture;
-	Shader *baseShader;
 	std::vector<Shader *> effectShaders; // Список эффектов
 };
 
