@@ -1,5 +1,4 @@
-#ifndef SHADERLOADER_H
-#define SHADERLOADER_H
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -12,7 +11,7 @@ class ShaderLoader
 {
 public:
 	// Загрузка шейдера (с кэшированием)
-	static Shader *loadShader(const std::string &vertexPath, const std::string &fragmentPath);
+	static std::shared_ptr<Shader> loadShader(const std::string &vertexPath, const std::string &fragmentPath);
 
 private:
 	// Ключ для кэша: комбинация путей к вершинному и фрагментному шейдерам
@@ -43,10 +42,8 @@ private:
 	 ! Shader *:  Тип значения.
 	 ! ShaderKeyHash:  Хеш-функция.
 	*/
-	static std::unordered_map<ShaderKey, Shader *, ShaderKeyHash> shaderCache;
+	static std::unordered_map<ShaderKey, std::shared_ptr<Shader>, ShaderKeyHash > shaderCache;
 
 	// Приватный конструктор (класс статический)
 	ShaderLoader() = delete;
 };
-
-#endif // SHADERLOADER_H

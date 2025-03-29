@@ -1,34 +1,26 @@
 #include "GameObject.h"
+
 #include <GL/glew.h>
 #include <iostream>
 
-GameObject::GameObject(Texture2D *texture, Shader *baseShader)
-	: texture(texture), baseShader(baseShader), renderer()
+GameObject::GameObject(std::shared_ptr<Texture2D> texture, std::shared_ptr<Shader> shader)
+	: renderer(), baseShader(shader), dstrect({0.0f, 0.0f, 100.0f, 100.0f}), srcrect({0.0f, 0.0f, 32.0f, 32.0f}), origin({50.0f, 50.0f, 0.0f, 0.0f}), angle(0), texture(texture)
 {
-	if (!texture || !baseShader)
-	{
-		std::cerr << "Failed to initialize GameObject!" << std::endl;
-	}
-
 	srcrect = {0.0f, 0.0f, 32.0f, 32.0f};	// позиция и размер текстуры
 	dstrect = {0.0f, 0.0f, 100.0f, 100.0f}; // Позиция и размер объекта
-	origin = {100.0f, 0.0f, 0.0f, 0.0f};	// Локальные координаты центра
+	origin = {50.0f, 50.0f, 0.0f, 0.0f};	// Локальные координаты центра
+
+	if (!texture || !baseShader)
+	{
+		throw std::invalid_argument("Texture or shader is null!");
+	}
 }
 
 GameObject::~GameObject()
 {
-	delete this;
 }
 
 void GameObject::Draw()
 {
-
-	if (angle >= 360)
-	{
-		angle = 0;
-	}
-
-	angle++;
-
-	renderer.RenderSprite(texture, baseShader, &srcrect, &dstrect, angle, &origin);
+	renderer.RenderSprite(texture.get(), baseShader.get(), srcrect, dstrect, angle, origin);
 }

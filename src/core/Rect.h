@@ -1,5 +1,5 @@
-#ifndef RECT_H
-#define RECT_H
+/*
+#pragma once
 
 #include <vector>
 
@@ -19,5 +19,4 @@ struct Rect
 		return vertices;
 	}
 };
-
-#endif // RECT_H
+*/

@@ -38,7 +38,7 @@ void Render::setCamera(Camera *newCamera)
 	camera = newCamera;
 }
 
-void Render::RenderSprite(Texture2D *texture, Shader *shader, const Rect *srcrect, const Rect *dstrect, double angle, const Rect *origin)
+void Render::RenderSprite(Texture2D *texture, Shader *shader, const Rect &srcrect, const Rect &dstrect, double angle, const Rect &origin)
 {
 	if (!shader || !texture)
 	{
@@ -47,20 +47,20 @@ void Render::RenderSprite(Texture2D *texture, Shader *shader, const Rect *srcrec
 	}
 
 	shader->use();
-	texture->bind();
+	texture->Bind();
 
 	// Генерация вершин для целевого прямоугольника
-	std::vector<float> vertices = dstrect->generateVertices();
+	std::vector<float> vertices = GenerateVertices(dstrect);
 
 	// Размеры текстуры
-	float textureWidth = static_cast<float>(texture->getWidth());
-	float textureHeight = static_cast<float>(texture->getHeight());
+	float textureWidth = static_cast<float>(texture->width);
+	float textureHeight = static_cast<float>(texture->height);
 
 	// Нормализованные координаты srcrect
-	float uStart = srcrect->x / textureWidth;
-	float vStart = srcrect->y / textureHeight;
-	float uEnd = (srcrect->x + srcrect->w) / textureWidth;
-	float vEnd = (srcrect->y + srcrect->h) / textureHeight;
+	float uStart = srcrect.x / textureWidth;
+	float vStart = srcrect.y / textureHeight;
+	float uEnd = (srcrect.x + srcrect.w) / textureWidth;
+	float vEnd = (srcrect.y + srcrect.h) / textureHeight;
 
 	// Модификация текстурных координат в зависимости от srcrect
 	for (size_t i = 3; i < vertices.size(); i += 5)
@@ -83,10 +83,10 @@ void Render::RenderSprite(Texture2D *texture, Shader *shader, const Rect *srcrec
 	glm::mat4 model = glm::mat4(1.0f);
 
 	// Корректное применение трансформаций для вращения
-	model = glm::translate(model, glm::vec3(dstrect->x - origin->x, dstrect->y - origin->y, 0.0f));	  // Перемещение объекта
-	model = glm::translate(model, glm::vec3(dstrect->x + origin->x, dstrect->y + origin->y, 0.0f));	  // Перемещение к точке вращения
-	model = glm::rotate(model, glm::radians((float)angle), glm::vec3(0.0f, 0.0f, 1.0f));			  // Поворот
-	model = glm::translate(model, glm::vec3(-dstrect->x - origin->x, -dstrect->y - origin->y, 0.0f)); // Возврат к исходной позиции
+	model = glm::translate(model, glm::vec3(dstrect.x - origin.x, dstrect.y - origin.y, 0.0f));	  // Перемещение объекта
+	model = glm::translate(model, glm::vec3(dstrect.x + origin.x, dstrect.y + origin.y, 0.0f));	  // Перемещение к точке вращения
+	model = glm::rotate(model, glm::radians((float)angle), glm::vec3(0.0f, 0.0f, 1.0f));		  // Поворот
+	model = glm::translate(model, glm::vec3(-dstrect.x - origin.x, -dstrect.y - origin.y, 0.0f)); // Возврат к исходной позиции
 
 	// Получаем матрицы камеры
 	const glm::mat4 &view = camera->getViewMatrix();

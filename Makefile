@@ -10,8 +10,6 @@ SRCS = main.cpp \
 	src/core/ImGuiManager.cpp \
 	src/openGL/OpenGLContext.cpp \
 	src/openGL/Framebuffer.cpp \
-	src/graphics/Texture2D.cpp \
-	src/graphics/ScreenQuadRenderer.cpp \
 	src/graphics/Shader.cpp \
 	src/graphics/Render.cpp \
 	src/utils/ShaderLoader.cpp \

@@ -3,9 +3,9 @@
 #include <iostream>
 
 // Инициализация статического кэша
-std::unordered_map<ShaderLoader::ShaderKey, Shader *, ShaderLoader::ShaderKeyHash> ShaderLoader::shaderCache;
+std::unordered_map<ShaderLoader::ShaderKey, std::shared_ptr<Shader>, ShaderLoader::ShaderKeyHash> ShaderLoader::shaderCache;
 
-Shader *ShaderLoader::loadShader(const std::string &vertexPath, const std::string &fragmentPath)
+std::shared_ptr<Shader> ShaderLoader::loadShader(const std::string &vertexPath, const std::string &fragmentPath)
 {
 	//  Создаем ключ для поиска в кэше
 	ShaderKey key{vertexPath, fragmentPath};
@@ -18,16 +18,16 @@ Shader *ShaderLoader::loadShader(const std::string &vertexPath, const std::strin
 	}
 
 	// Создаем новый шейдер
-	Shader *shader = new Shader();
-
+	auto shader = std::make_shared<Shader>();
 	if (!shader->loadFromFile(vertexPath, fragmentPath))
 	{
-		std::cerr << "Failed to load shader: Vertex(" << vertexPath << "), Fragment(" << fragmentPath << ")" << std::endl;
+		std::cerr << "Failed to load shader: " << vertexPath << ", " << fragmentPath << std::endl;
 		return nullptr;
 	}
+	return shader;
 
 	// Добавляем шейдер в кэш
-	shaderCache[key] = shader;
+	shaderCache[key] = std::move(shader);
 	return shader;
 }
 

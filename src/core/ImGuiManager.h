@@ -1,11 +1,11 @@
-#ifndef IMGUI_MANAGER_H
-#define IMGUI_MANAGER_H
-
+#pragma once
+#define GLEW_STATIC		  // Для статической линковки GLEW
+#define GLFW_INCLUDE_NONE // Отключает автоматическое включение gl.h в GLFW
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
-#include "Rect.h"
+#include <src/core/Engine.h>
 
 class ImGuiManager
 {
@@ -19,5 +19,3 @@ private:
 	float lastFrameTime;
 	GLFWwindow *window;
 };
-
-#endif // IMGUI_MANAGER_H

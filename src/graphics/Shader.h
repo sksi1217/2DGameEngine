@@ -1,5 +1,4 @@
-#ifndef SHADERP_H
-#define SHADERP_H
+#pragma once
 
 #include <string>
 #include <GL/glew.h>
@@ -34,5 +33,3 @@ private:
 	GLuint compileShader(GLenum type, const std::string &source);
 	std::string loadShaderSource(const std::string &filePath);
 };
-
-#endif // SHADERPROGRAM_H
